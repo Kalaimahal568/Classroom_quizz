@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Excel Skills Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+.container{width:100%;max-width:640px}
+.card{background:#fff;border-radius:14px;border:1px solid #e0ddd6;padding:1.5rem;margin-bottom:1rem}
+h1{font-size:24px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.sub{font-size:14px;color:#888780;margin-bottom:1.5rem}
+.btn{padding:10px 24px;border-radius:9px;border:1px solid #d3d1c7;background:#fff;color:#1a1a1a;font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn:hover{background:#f1efe8}
+.btn.primary{background:#534AB7;border-color:#534AB7;color:#EEEDFE;font-weight:500}
+.btn.primary:hover{background:#3C3489}
+.btn.primary:disabled{opacity:.4;cursor:default}
+.btn.danger{background:#FCEBEB;border-color:#F09595;color:#791F1F}
+.btn.danger:hover{background:#F7C1C1}
+.btn.sm{padding:6px 14px;font-size:12px}
+.btn.full{width:100%}
+input[type=text],input[type=password]{height:40px;border-radius:9px;border:1px solid #d3d1c7;padding:0 12px;font-size:14px;background:#fff;color:#1a1a1a;width:100%;font-family:inherit;transition:border-color .15s}
+input:focus{outline:none;border-color:#534AB7;box-shadow:0 0 0 3px rgba(83,74,183,.1)}
+label{font-size:13px;color:#888780;display:block;margin-bottom:5px}
+.err{color:#A32D2D;font-size:13px;margin-top:6px;display:none}
+.tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.prog-wrap{background:#f1efe8;border-radius:100px;height:6px;margin-bottom:1.25rem;overflow:hidden}
+.prog-fill{height:6px;border-radius:100px;background:#534AB7;transition:width .3s}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:9px;border:1px solid #e0ddd6;background:#fff;cursor:pointer;text-align:left;font-size:14px;color:#1a1a1a;width:100%;font-family:inherit;transition:all .12s}
+.opt:hover:not(:disabled){background:#f1efe8;border-color:#b4b2a9}
+.opt:disabled{cursor:default}
+.opt-l{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;border:1px solid #d3d1c7;color:#888780;background:#f1efe8}
+.opt.correct{background:#EAF3DE;border-color:#97C459}.opt.correct .opt-l{background:#639922;color:#fff;border-color:#639922}.opt.correct .opt-t{color:#27500A}
+.opt.wrong{background:#FCEBEB;border-color:#F09595}.opt.wrong .opt-l{background:#A32D2D;color:#fff;border-color:#A32D2D}.opt.wrong .opt-t{color:#791F1F}
+.fb{padding:12px 14px;border-radius:0 9px 9px 0;font-size:13px;line-height:1.6;margin-bottom:1rem}
+.fb.ok{background:#EAF3DE;color:#27500A;border-left:3px solid #639922}
+.fb.bad{background:#FCEBEB;color:#791F1F;border-left:3px solid #A32D2D}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f5f4f0;padding:9px 10px;text-align:left;font-weight:600;font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e0ddd6}
+td{padding:9px 10px;border-bottom:1px solid #f1efe8;color:#1a1a1a}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{background:#f5f4f0;border-radius:10px;padding:14px;text-align:center}
+.stat-n{font-size:24px;font-weight:600;margin-bottom:2px}
+.stat-l{font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.spacer{height:12px}
+.divider{height:1px;background:#f1efe8;margin:1rem 0}
+.header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.score-circle{font-size:64px;font-weight:700;line-height:1;margin-bottom:4px}
+@media(max-width:480px){.stat-grid{grid-template-columns:1fr 1fr}.stat-grid .stat:last-child{grid-column:span 2}}
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+const QS=[
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What does a cell address like B3 refer to?",
+   opts:["Row B, Column 3","Column B, Row 3","Block B, Section 3","Button B, Range 3"],
+   ans:1,exp:"Column letter comes first, then row number — B3 means Column B, Row 3."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"Which key moves your cursor to the next cell to the RIGHT?",
+   opts:["Enter","Shift","Tab","Escape"],
+   ans:2,exp:"Tab moves one cell to the right. Enter moves one cell down."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What does Ctrl + Z do in Excel?",
+   opts:["Redo the last action","Save the file","Undo the last action","Copy the selected cells"],
+   ans:2,exp:"Ctrl+Z is the universal Undo shortcut — it works in Excel and most other programs."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What is the Name Box (top-left corner of Excel) used for?",
+   opts:["Naming your workbook","Showing & navigating to a cell address","Typing formula names","Saving the file"],
+   ans:1,exp:"The Name Box shows which cell is active and lets you jump to any cell by typing its address."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"Every Excel formula must begin with which character?",
+   opts:["# (hash)","@ (at sign)","= (equals sign)","+ (plus sign)"],
+   ans:2,exp:"The equals sign ( = ) tells Excel you are entering a formula, not plain text."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"What does the formula =SUM(B2:B5) calculate?",
+   opts:["The product of B2 and B5","The average of B2 to B5","The total of all cells from B2 to B5","The largest value in that range"],
+   ans:2,exp:"SUM adds all values in the range. B2:B5 includes cells B2, B3, B4, and B5."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"Which formula correctly finds the average of cells A1 through A10?",
+   opts:["=MEAN(A1:A10)","=AVERAGE(A1:A10)","=AVG(A1,A10)","=MID(A1:A10)"],
+   ans:1,exp:"=AVERAGE(range) is the correct Excel function. MEAN and AVG are not valid Excel functions."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"What does the colon ( : ) mean in a cell range like C3:C8?",
+   opts:["Multiply C3 by C8","C3 divided by C8","All cells FROM C3 THROUGH C8","C3 minus C8"],
+   ans:2,exp:"The colon means 'through' — C3:C8 includes all cells from C3 to C8."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:"What is the correct structure for an IF statement?",
+   opts:["=IF(yes, no, question)","=IF(question, yes_answer, no_answer)","=IF(answer, question)","=IF(value > result)"],
+   ans:1,exp:"IF takes 3 parts: the test (question), what to show if TRUE, what to show if FALSE."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:'In =IF(A1&gt;=50,"Pass","Fail"), what shows when A1 contains 50?',
+   opts:["Fail","Error","Pass","Nothing"],
+   ans:2,exp:">= means greater than OR equal to. Since 50 >= 50 is TRUE, the result is Pass."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:"Why must text results in IF statements have quotation marks?",
+   opts:["To make the text bold","Excel requires quotes around text values in formulas","To change the font color","Quotes are optional"],
+   ans:1,exp:"Without quotes, Excel treats the text as a cell reference or function name, causing an error."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:'What does =IF(A1&gt;=90,"A",IF(A1&gt;=80,"B","C")) return when A1 = 75?',
+   opts:["A","B","C","Error"],
+   ans:2,exp:"75 is not >=90 (skip A), not >=80 (skip B), so the final else result C is returned."},
+];
+
+const PASS="lecturer123";
+const STORAGE_KEY="excel-quiz-results";
+
+let S={screen:'home',cur:0,answers:[],name:'',showFb:false};
+
+function grade(s,t){
+  const p=s/t;
+  if(p>=.92)return{label:'A+',bg:'#EEEDFE',c:'#3C3489'};
+  if(p>=.83)return{label:'A',bg:'#EAF3DE',c:'#27500A'};
+  if(p>=.67)return{label:'B',bg:'#E6F1FB',c:'#0C447C'};
+  if(p>=.5) return{label:'C',bg:'#FAEEDA',c:'#633806'};
+  return{label:'F',bg:'#FCEBEB',c:'#791F1F'};
+}
+
+function loadResults(){
+  try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
+  catch{return[];}
+}
+
+function saveResult(entry){
+  const r=loadResults();
+  r.push(entry);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(r));
+}
+
+function clearResults(){
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+function render(){
+  const app=document.getElementById('app');
+
+  if(S.screen==='home'){
+    app.innerHTML=`
+      <div class="card" style="text-align:center;padding:2.5rem 1.5rem 2rem">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#888780;margin-bottom:12px">Excel Basics Course</div>
+        <h1 style="font-size:28px;margin-bottom:6px">Excel Skills Quiz</h1>
+        <p class="sub">Basics &nbsp;·&nbsp; Formulas &nbsp;·&nbsp; IF Statements</p>
+        <p style="font-size:13px;color:#888780;margin-bottom:2rem">12 questions &nbsp;·&nbsp; instant feedback &nbsp;·&nbsp; results saved automatically</p>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:0 auto">
+          <button class="btn primary full" style="font-size:15px;padding:14px" onclick="goStudent()">Take the quiz</button>
+          <button class="btn full" style="font-size:13px" onclick="goLecturer()">Lecturer login</button>
+        </div>
+      </div>`;
+
+  } else if(S.screen==='student-name'){
+    app.innerHTML=`
+      <div class="card">
+        <h1 style="font-size:20px;margin-bottom:4px">Enter your name</h1>
+        <p class="sub">Your name will be saved with your score.</p>
+        <div class="divider"></div>
+        <label>Full name</label>
+        <input type="text" id="nameIn" placeholder="e.g. Sarah Ahmed" value="${S.name}" autocomplete="off"/>
+        <div id="nameErr" class="err">Please enter your name to continue.</div>
+        <div class="spacer"></div>
+        <div class="row-btns">
+          <button class="btn primary" onclick="startQuiz()">Start quiz</button>
+          <button class="btn sm" onclick="S.screen='home';render()">Back</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const ni=document.getElementById('nameIn');
+      if(ni){ni.focus();ni.addEventListener('keydown',e=>{if(e.key==='Enter')startQuiz();});}
+    },30);
+
+  } else if(S.screen==='quiz'){
+    const q=QS[S.cur];
+    const pct=Math.round(S.cur/QS.length*100);
+    const answered=S.answers[S.cur]!==undefined;
+    const ua=S.answers[S.cur];
+    const isLast=S.cur===QS.length-1;
+    app.innerHTML=`
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;color:#888780">Logged in as <strong style="color:#1a1a1a">${escHtml(S.name)}</strong></span>
+          <span style="font-size:12px;color:#888780">${S.cur+1} / ${QS.length}</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
+            <span class="tag" style="background:${q.light};color:${q.tc}">${q.topic}</span>
+            <span style="font-size:12px;color:#888780">Question ${S.cur+1}</span>
+          </div>
+          <div style="font-size:16px;font-weight:500;color:#1a1a1a;margin-bottom:1.1rem;line-height:1.5">${q.q}</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
+            ${q.opts.map((o,i)=>{
+              let cls='opt';
+              if(answered&&S.showFb){
+                if(i===q.ans)cls+=' correct';
+                else if(i===ua&&ua!==q.ans)cls+=' wrong';
+              }
+              return`<button class="${cls}" onclick="pick(${i})" ${answered?'disabled':''}>
+                <span class="opt-l">${['A','B','C','D'][i]}</span>
+                <span class="opt-t">${o}</span>
+              </button>`;
+            }).join('')}
+          </div>
+          ${answered&&S.showFb?`<div class="fb ${ua===q.ans?'ok':'bad'}"><strong>${ua===q.ans?'Correct!':'Not quite.'}</strong> ${q.exp}</div>`:''}
+          ${answered&&S.showFb?`<div style="display:flex;justify-content:flex-end"><button class="btn primary" onclick="nextQ()">${isLast?'Finish quiz':'Next question'}</button></div>`:''}
+        </div>
+      </div>`;
+
+  } else if(S.screen==='done'){
+    const score=S.answers.filter((a,i)=>a===QS[i].ans).length;
+    const g=grade(score,QS.length);
+    app.innerHTML=`
+      <div class="card" style="text-align:center;padding:2rem">
+        <p style="font-size:14px;color:#888780;margin-bottom:8px">Quiz complete — well done, ${escHtml(S.name)}!</p>
+        <div class="score-circle" style="color:${g.c}">${score}</div>
+        <div style="font-size:16px;color:#888780;margin-bottom:14px">/ ${QS.length} correct</div>
+        <span class="tag" style="background:${g.bg};color:${g.c};font-size:14px;padding:7px 22px">${g.label} &nbsp;·&nbsp; ${Math.round(score/QS.length*100)}%</span>
+        <p style="margin-top:1.5rem;font-size:13px;color:#888780">Your result has been saved.</p>
+        <div style="margin-top:1rem"><button class="btn sm" onclick="goStudent()">Take quiz again</button></div>
+      </div>`;
+
+  } else if(S.screen==='lecturer-login'){
+    app.innerHTML=`
+      <div class="card">
+        <h1 style="font-size:20px;margin-bottom:4px">Lecturer login</h1>
+        <p class="sub">Enter your password to view student results.</p>
+        <div class="divider"></div>
+        <label>Password</label>
+        <input type="password" id="passIn" placeholder="Enter password"/>
+        <div id="passErr" class="err">Incorrect password. Please try again.</div>
+        <div class="spacer"></div>
+        <div class="row-btns">
+          <button class="btn primary" onclick="checkPass()">Login</button>
+          <button class="btn sm" onclick="S.screen='home';render()">Back</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const pi=document.getElementById('passIn');
+      if(pi){pi.focus();pi.addEventListener('keydown',e=>{if(e.key==='Enter')checkPass();});}
+    },30);
+
+  } else if(S.screen==='dashboard'){
+    renderDashboard();
+  }
+}
+
+function renderDashboard(){
+  const app=document.getElementById('app');
+  const results=loadResults();
+  const total=QS.length;
+  const avg=results.length?+(results.reduce((a,r)=>a+r.score,0)/results.length).toFixed(1):0;
+  const pass=results.filter(r=>r.score/total>=.5).length;
+
+  const rows=results.length===0
+    ?`<tr><td colspan="5" style="text-align:center;color:#888780;padding:1.5rem">No students have submitted yet.</td></tr>`
+    :[...results].reverse().map((r,i)=>{
+        const g=grade(r.score,total);
+        const pct=Math.round(r.score/total*100);
+        const t=new Date(r.time).toLocaleString();
+        return`<tr>
+          <td style="color:#888780">${results.length-i}</td>
+          <td style="font-weight:500">${escHtml(r.name)}</td>
+          <td>${r.score} / ${total}</td>
+          <td><span class="tag" style="background:${g.bg};color:${g.c}">${g.label} &nbsp;${pct}%</span></td>
+          <td style="color:#888780;font-size:12px">${t}</td>
+        </tr>`;
+      }).join('');
+
+  app.innerHTML=`
+    <div>
+      <div class="header-bar">
+        <div>
+          <h1 style="font-size:20px">Lecturer dashboard</h1>
+          <p style="font-size:13px;color:#888780;margin-top:2px">${results.length} student${results.length!==1?'s':''} completed the quiz</p>
+        </div>
+        <button class="btn sm" onclick="S.screen='home';render()">Exit</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-n" style="color:#534AB7">${results.length}</div><div class="stat-l">Submissions</div></div>
+        <div class="stat"><div class="stat-n" style="color:#3B6D11">${avg} / ${total}</div><div class="stat-l">Average score</div></div>
+        <div class="stat"><div class="stat-n" style="color:#185FA5">${results.length?Math.round(pass/results.length*100):0}%</div><div class="stat-l">Pass rate</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:1rem">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>#</th><th>Student name</th><th>Score</th><th>Grade</th><th>Submitted</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row-btns">
+        <button class="btn primary sm" onclick="exportCSV()">Export to CSV</button>
+        <button class="btn sm" onclick="renderDashboard()">Refresh</button>
+        ${results.length?`<button class="btn danger sm" onclick="confirmClear()">Clear all results</button>`:''}
+      </div>
+    </div>`;
+}
+
+function confirmClear(){
+  if(confirm('Delete ALL student results? This cannot be undone.')){clearResults();renderDashboard();}
+}
+
+function exportCSV(){
+  const results=loadResults();
+  if(!results.length){alert('No results to export.');return;}
+  const header='#,Name,Score,Out of,Percentage,Grade,Submitted\n';
+  const rows=results.map((r,i)=>{
+    const pct=Math.round(r.score/QS.length*100);
+    const g=grade(r.score,QS.length);
+    return`${i+1},"${r.name.replace(/"/g,'""')}",${r.score},${QS.length},${pct}%,${g.label},"${new Date(r.time).toLocaleString()}"`;
+  }).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='quiz_results.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function goStudent(){S={screen:'student-name',cur:0,answers:[],name:'',showFb:false};render();}
+function goLecturer(){S.screen='lecturer-login';render();}
+function startQuiz(){
+  const n=document.getElementById('nameIn')?.value?.trim();
+  if(!n){document.getElementById('nameErr').style.display='block';return;}
+  S.name=n;S.screen='quiz';S.cur=0;S.answers=[];S.showFb=false;render();
+}
+function pick(i){
+  if(S.answers[S.cur]!==undefined)return;
+  S.answers[S.cur]=i;S.showFb=true;render();
+}
+function nextQ(){
+  S.showFb=false;
+  if(S.cur<QS.length-1){S.cur++;render();}
+  else{
+    const score=S.answers.filter((a,i)=>a===QS[i].ans).length;
+    saveResult({name:S.name,score,total:QS.length,time:Date.now()});
+    S.screen='done';render();
+  }
+}
+function checkPass(){
+  const v=document.getElementById('passIn')?.value;
+  if(v===PASS){S.screen='dashboard';render();}
+  else{document.getElementById('passErr').style.display='block';}
+}
+
+render();
+</script>
+</body>
+</html>
