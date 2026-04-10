@@ -1,0 +1,338 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.page{padding:1rem 0}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.btn{padding:9px 22px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;cursor:pointer;font-family:var(--font-sans)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:#534AB7;border-color:#534AB7;color:#EEEDFE}
+.btn.primary:hover{background:#3C3489}
+.btn.primary:disabled{opacity:.4;cursor:default}
+.btn.danger{background:#FCEBEB;border-color:#F09595;color:#791F1F}
+.btn.sm{padding:5px 14px;font-size:12px}
+input{height:38px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);padding:0 12px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary);width:100%;font-family:var(--font-sans)}
+input:focus{outline:none;border-color:#534AB7}
+label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:5px}
+.err{color:#A32D2D;font-size:13px;margin-top:6px}
+.tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:500}
+.prog-wrap{background:var(--color-background-secondary);border-radius:100px;height:6px;margin-bottom:1.25rem;overflow:hidden}
+.prog-fill{height:6px;border-radius:100px;background:#534AB7;transition:width .3s}
+.opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;text-align:left;font-size:14px;color:var(--color-text-primary);width:100%;font-family:var(--font-sans)}
+.opt:hover:not(:disabled){background:var(--color-background-secondary)}
+.opt:disabled{cursor:default}
+.opt-l{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary)}
+.opt.correct{background:#EAF3DE;border-color:#97C459}.opt.correct .opt-l{background:#639922;color:#fff;border-color:#639922}.opt.correct .opt-t{color:#27500A}
+.opt.wrong{background:#FCEBEB;border-color:#F09595}.opt.wrong .opt-l{background:#A32D2D;color:#fff;border-color:#A32D2D}.opt.wrong .opt-t{color:#791F1F}
+.fb{padding:11px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;font-size:13px;line-height:1.5}
+.fb.ok{background:#EAF3DE;color:#27500A;border-left:3px solid #639922}
+.fb.bad{background:#FCEBEB;color:#791F1F;border-left:3px solid #A32D2D}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--color-background-secondary);padding:8px 10px;text-align:left;font-weight:500;font-size:12px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--color-background-secondary)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center}
+.stat-n{font-size:22px;font-weight:500;margin-bottom:2px}
+.stat-l{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em}
+.spacer{height:12px}
+</style>
+
+<div class="page" id="app"></div>
+
+<script>
+const QS=[
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What does a cell address like B3 refer to?",
+   opts:["Row B, Column 3","Column B, Row 3","Block B, Section 3","Button B, Range 3"],
+   ans:1,exp:"Column letter comes first, then row number — B3 means Column B, Row 3."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"Which key moves your cursor to the next cell to the RIGHT?",
+   opts:["Enter","Shift","Tab","Escape"],
+   ans:2,exp:"Tab moves one cell to the right. Enter moves one cell down."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What does Ctrl + Z do in Excel?",
+   opts:["Redo the last action","Save the file","Undo the last action","Copy the selected cells"],
+   ans:2,exp:"Ctrl+Z is the universal Undo shortcut — it works in Excel and most other programs."},
+  {topic:"Basics",color:"#534AB7",light:"#EEEDFE",tc:"#3C3489",
+   q:"What is the Name Box (top-left corner of Excel) used for?",
+   opts:["Naming your workbook","Showing & navigating to a cell address","Typing formula names","Saving the file"],
+   ans:1,exp:"The Name Box shows which cell is active and lets you jump to any cell by typing its address."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"Every Excel formula must begin with which character?",
+   opts:["# (hash)","@ (at sign)","= (equals sign)","+ (plus sign)"],
+   ans:2,exp:"The equals sign ( = ) tells Excel you are entering a formula, not plain text."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"What does the formula =SUM(B2:B5) calculate?",
+   opts:["The product of B2 and B5","The average of B2 to B5","The total of all cells from B2 to B5","The largest value in that range"],
+   ans:2,exp:"SUM adds all values in the range. B2:B5 includes cells B2, B3, B4, and B5."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"Which formula correctly finds the average of cells A1 through A10?",
+   opts:["=MEAN(A1:A10)","=AVERAGE(A1:A10)","=AVG(A1,A10)","=MID(A1:A10)"],
+   ans:1,exp:"=AVERAGE(range) is the correct Excel function. MEAN and AVG are not valid Excel functions."},
+  {topic:"Formulas",color:"#185FA5",light:"#E6F1FB",tc:"#0C447C",
+   q:"What does the colon ( : ) mean in a cell range like C3:C8?",
+   opts:["Multiply C3 by C8","C3 divided by C8","All cells FROM C3 THROUGH C8","C3 minus C8"],
+   ans:2,exp:"The colon means 'through' — C3:C8 includes all cells from C3 to C8."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:"What is the correct structure for an IF statement?",
+   opts:["=IF(yes, no, question)","=IF(question, yes_answer, no_answer)","=IF(answer, question)","=IF(value > result)"],
+   ans:1,exp:"IF takes 3 parts: the test (question), what to show if TRUE, what to show if FALSE."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:'In =IF(A1>=50,"Pass","Fail"), what shows when A1 contains 50?',
+   opts:["Fail","Error","Pass","Nothing"],
+   ans:2,exp:">= means greater than OR equal to. Since 50 >= 50 is TRUE, the result is Pass."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:"Why must text results in IF statements have quotation marks?",
+   opts:["To make the text bold","Excel requires quotes around text values in formulas","To change the font color","Quotes are optional"],
+   ans:1,exp:"Without quotes, Excel treats the text as a cell reference or function name, causing an error."},
+  {topic:"IF Statements",color:"#3B6D11",light:"#EAF3DE",tc:"#27500A",
+   q:'What does =IF(A1>=90,"A",IF(A1>=80,"B","C")) return when A1 = 75?',
+   opts:["A","B","C","Error"],
+   ans:2,exp:"75 is not >=90 (skip A), not >=80 (skip B), so the final else result C is returned."},
+];
+
+const PASS="lecturer123";
+let S={screen:'home',cur:0,answers:[],name:'',showFb:false};
+
+function grade(s,t){
+  const p=s/t;
+  if(p>=.92)return{label:'A+',bg:'#EEEDFE',c:'#3C3489'};
+  if(p>=.83)return{label:'A',bg:'#EAF3DE',c:'#27500A'};
+  if(p>=.67)return{label:'B',bg:'#E6F1FB',c:'#0C447C'};
+  if(p>=.5) return{label:'C',bg:'#FAEEDA',c:'#633806'};
+  return{label:'F',bg:'#FCEBEB',c:'#791F1F'};
+}
+
+async function loadResults(){
+  try{const r=await window.storage.get('quiz-results',true);return r?JSON.parse(r.value):[];}
+  catch{return[];}
+}
+
+async function saveResult(entry){
+  const results=await loadResults();
+  results.push(entry);
+  await window.storage.set('quiz-results',JSON.stringify(results),true);
+}
+
+async function clearResults(){
+  await window.storage.delete('quiz-results',true);
+}
+
+function render(){
+  const app=document.getElementById('app');
+
+  if(S.screen==='home'){
+    app.innerHTML=`
+      <div style="text-align:center;padding:2.5rem 1rem 2rem">
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-secondary);margin-bottom:10px">Excel Basics Course</div>
+        <div style="font-size:24px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Excel Skills Quiz</div>
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:6px">Basics · Formulas · IF Statements</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:2rem">12 questions · instant feedback · results saved automatically</div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto">
+          <button class="btn primary" style="font-size:15px;padding:13px" onclick="goStudent()">Take the quiz</button>
+          <button class="btn" style="font-size:13px" onclick="goLecturer()">Lecturer login</button>
+        </div>
+      </div>`;
+
+  } else if(S.screen==='student-name'){
+    app.innerHTML=`
+      <div style="max-width:400px;margin:0 auto;padding:1rem 0">
+        <div style="font-size:18px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)">Enter your name</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">Your name will be saved with your score.</div>
+        <div class="card">
+          <label>Full name</label>
+          <input type="text" id="nameIn" placeholder="e.g. Sarah Ahmed" value="${S.name}"/>
+          <div id="nameErr" class="err" style="display:none">Please enter your name to continue.</div>
+          <div class="spacer"></div>
+          <button class="btn primary" style="width:100%" onclick="startQuiz()">Start quiz</button>
+        </div>
+        <div style="margin-top:10px;text-align:center">
+          <button class="btn sm" onclick="S.screen='home';render()">Back</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const ni=document.getElementById('nameIn');
+      if(ni){ni.focus();ni.addEventListener('keydown',e=>{if(e.key==='Enter')startQuiz();});}
+    },50);
+
+  } else if(S.screen==='quiz'){
+    const q=QS[S.cur];
+    const pct=Math.round(S.cur/QS.length*100);
+    const answered=S.answers[S.cur]!==undefined;
+    const ua=S.answers[S.cur];
+    const isLast=S.cur===QS.length-1;
+    app.innerHTML=`
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--color-text-secondary)">Logged in as <strong style="color:var(--color-text-primary)">${S.name}</strong></span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">${S.cur+1} / ${QS.length}</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <span class="tag" style="background:${q.light};color:${q.tc}">${q.topic}</span>
+          <span style="font-size:12px;color:var(--color-text-secondary)">Question ${S.cur+1}</span>
+        </div>
+        <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem;line-height:1.5">${q.q}</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:1rem">
+          ${q.opts.map((o,i)=>{
+            let cls='opt';
+            if(answered&&S.showFb){
+              if(i===q.ans)cls+=' correct';
+              else if(i===ua&&ua!==q.ans)cls+=' wrong';
+            }
+            return`<button class="${cls}" onclick="pick(${i})" ${answered?'disabled':''}>
+              <span class="opt-l">${['A','B','C','D'][i]}</span>
+              <span class="opt-t">${o}</span>
+            </button>`;
+          }).join('')}
+        </div>
+        ${answered&&S.showFb?`<div class="fb ${ua===q.ans?'ok':'bad'}" style="margin-bottom:1rem"><strong>${ua===q.ans?'Correct!':'Not quite.'}</strong> ${q.exp}</div>`:''}
+        ${answered&&S.showFb?`<div style="display:flex;justify-content:flex-end"><button class="btn primary" onclick="next()">${isLast?'Finish quiz':'Next question'}</button></div>`:''}
+      </div>`;
+
+  } else if(S.screen==='done'){
+    const score=S.answers.filter((a,i)=>a===QS[i].ans).length;
+    const g=grade(score,QS.length);
+    app.innerHTML=`
+      <div style="text-align:center;padding:2rem 1rem">
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:6px">Quiz complete — well done, ${S.name}!</div>
+        <div style="font-size:56px;font-weight:500;color:${g.c};line-height:1">${score}</div>
+        <div style="font-size:16px;color:var(--color-text-secondary);margin-bottom:12px">/ ${QS.length} correct</div>
+        <span class="tag" style="background:${g.bg};color:${g.c};font-size:14px;padding:6px 20px">${g.label} &nbsp;·&nbsp; ${Math.round(score/QS.length*100)}%</span>
+        <div style="margin-top:1.5rem;font-size:13px;color:var(--color-text-secondary)">Your result has been saved. You may close this window.</div>
+        <div style="margin-top:1rem"><button class="btn sm" onclick="goStudent()">Take quiz again</button></div>
+      </div>`;
+
+  } else if(S.screen==='lecturer-login'){
+    app.innerHTML=`
+      <div style="max-width:360px;margin:0 auto;padding:1rem 0">
+        <div style="font-size:18px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)">Lecturer login</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">Enter your password to view student results.</div>
+        <div class="card">
+          <label>Password</label>
+          <input type="password" id="passIn" placeholder="Enter password"/>
+          <div id="passErr" class="err" style="display:none">Incorrect password. Please try again.</div>
+          <div class="spacer"></div>
+          <button class="btn primary" style="width:100%" onclick="checkPass()">Login</button>
+        </div>
+        <div style="margin-top:10px;text-align:center">
+          <button class="btn sm" onclick="S.screen='home';render()">Back</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const pi=document.getElementById('passIn');
+      if(pi){pi.focus();pi.addEventListener('keydown',e=>{if(e.key==='Enter')checkPass();});}
+    },50);
+
+  } else if(S.screen==='dashboard'){
+    renderDashboard();
+  }
+}
+
+async function renderDashboard(){
+  const app=document.getElementById('app');
+  app.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:14px">Loading results...</div>`;
+  const results=await loadResults();
+  const total=QS.length;
+  const avg=results.length?+(results.reduce((a,r)=>a+r.score,0)/results.length).toFixed(1):0;
+  const pass=results.filter(r=>r.score/total>=.5).length;
+
+  const rows=results.length===0
+    ?`<tr><td colspan="5" style="text-align:center;color:var(--color-text-secondary);padding:1.5rem">No students have submitted yet.</td></tr>`
+    :[...results].reverse().map((r,i)=>{
+        const g=grade(r.score,total);
+        const pct=Math.round(r.score/total*100);
+        const t=new Date(r.time).toLocaleString();
+        return`<tr>
+          <td style="color:var(--color-text-secondary)">${results.length-i}</td>
+          <td style="font-weight:500">${r.name}</td>
+          <td>${r.score} / ${total}</td>
+          <td><span class="tag" style="background:${g.bg};color:${g.c}">${g.label} &nbsp;${pct}%</span></td>
+          <td style="color:var(--color-text-secondary);font-size:12px">${t}</td>
+        </tr>`;
+      }).join('');
+
+  app.innerHTML=`
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;gap:10px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">Lecturer dashboard</div>
+          <div style="font-size:13px;color:var(--color-text-secondary)">${results.length} student${results.length!==1?'s':''} completed the quiz</div>
+        </div>
+        <button class="btn sm" onclick="S.screen='home';render()">Exit</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-n" style="color:#534AB7">${results.length}</div><div class="stat-l">Submissions</div></div>
+        <div class="stat"><div class="stat-n" style="color:#3B6D11">${avg} / ${total}</div><div class="stat-l">Average score</div></div>
+        <div class="stat"><div class="stat-n" style="color:#185FA5">${results.length?Math.round(pass/results.length*100):0}%</div><div class="stat-l">Pass rate</div></div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Student name</th><th>Score</th><th>Grade</th><th>Submitted</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary sm" onclick="exportCSV()">Export to CSV</button>
+        <button class="btn sm" onclick="renderDashboard()">Refresh</button>
+        ${results.length?`<button class="btn danger sm" onclick="confirmClear()">Clear all results</button>`:''}
+      </div>
+    </div>`;
+}
+
+async function confirmClear(){
+  if(confirm('Delete ALL student results? This cannot be undone.')){
+    await clearResults();renderDashboard();
+  }
+}
+
+async function exportCSV(){
+  const results=await loadResults();
+  if(!results.length){alert('No results to export.');return;}
+  const header='#,Name,Score,Out of,Percentage,Grade,Submitted\n';
+  const rows=results.map((r,i)=>{
+    const pct=Math.round(r.score/QS.length*100);
+    const g=grade(r.score,QS.length);
+    return`${i+1},"${r.name}",${r.score},${QS.length},${pct}%,${g.label},"${new Date(r.time).toLocaleString()}"`;
+  }).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='quiz_results.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function goStudent(){S={screen:'student-name',cur:0,answers:[],name:'',showFb:false};render();}
+function goLecturer(){S.screen='lecturer-login';render();}
+
+function startQuiz(){
+  const n=document.getElementById('nameIn')?.value?.trim();
+  if(!n){document.getElementById('nameErr').style.display='block';return;}
+  S.name=n;S.screen='quiz';S.cur=0;S.answers=[];S.showFb=false;render();
+}
+
+function pick(i){
+  if(S.answers[S.cur]!==undefined)return;
+  S.answers[S.cur]=i;S.showFb=true;render();
+}
+
+async function next(){
+  S.showFb=false;
+  if(S.cur<QS.length-1){S.cur++;render();}
+  else{
+    const score=S.answers.filter((a,i)=>a===QS[i].ans).length;
+    await saveResult({name:S.name,score,total:QS.length,time:Date.now()});
+    S.screen='done';render();
+  }
+}
+
+function checkPass(){
+  const v=document.getElementById('passIn')?.value;
+  if(v===PASS){S.screen='dashboard';render();}
+  else{document.getElementById('passErr').style.display='block';}
+}
+
+render();
+</script>

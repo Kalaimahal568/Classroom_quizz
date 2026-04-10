@@ -1,0 +1,549 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.screen{display:none;padding:1.5rem 0}
+.screen.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px 22px;margin-bottom:12px}
+.page-title{font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem}
+label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:6px;margin-top:12px}
+label:first-of-type{margin-top:0}
+input,select{width:100%;padding:9px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;font-family:var(--font-sans)}
+input:focus,select:focus{outline:none;border-color:#185FA5}
+.btn{width:100%;padding:10px;border-radius:var(--border-radius-md);font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:var(--font-sans);margin-top:14px;transition:opacity 0.15s}
+.btn:hover{opacity:0.88}
+.btn-blue{background:#185FA5;color:#fff}
+.btn-green{background:#1D9E75;color:#fff}
+.btn-gray{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);margin-top:8px}
+.btn-red{background:#E24B4A;color:#fff}
+.err{font-size:12px;color:var(--color-text-danger);margin-top:8px;display:none}
+.err.show{display:block}
+.role-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.role-btn{padding:18px 12px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;text-align:center;transition:all 0.15s}
+.role-btn:hover{background:var(--color-background-secondary)}
+.role-icon{font-size:28px;margin-bottom:6px}
+.role-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.role-desc{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+/* quiz styles */
+.subj-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.stab{padding:10px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);text-align:center;transition:all 0.2s}
+.stab.sel-excel{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.stab.sel-word{background:#185FA5;color:#fff;border-color:#185FA5}
+.prog-outer{background:var(--color-background-secondary);border-radius:99px;height:5px;margin-bottom:6px}
+.prog-inner{height:5px;border-radius:99px;transition:width 0.4s}
+.q-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:12px}
+.q-tag{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:8px}
+.q-text{font-size:15px;font-weight:500;color:var(--color-text-primary);line-height:1.5;margin-bottom:14px}
+.q-code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:7px 11px;margin-bottom:12px;display:inline-block}
+.opt{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);cursor:pointer;margin-bottom:7px;transition:all 0.15s;background:var(--color-background-primary)}
+.opt:hover:not(.disabled){background:var(--color-background-secondary)}
+.opt.correct{background:var(--color-background-success);border-color:var(--color-border-success)}
+.opt.wrong{background:var(--color-background-danger);border-color:var(--color-border-danger)}
+.opt.disabled{cursor:default}
+.opt-l{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-secondary);flex-shrink:0}
+.opt.correct .opt-l{background:#1D9E75;color:#fff}
+.opt.wrong .opt-l{background:#E24B4A;color:#fff}
+.opt-t{font-size:13px;color:var(--color-text-primary)}
+.opt.correct .opt-t{color:var(--color-text-success);font-weight:500}
+.opt.wrong .opt-t{color:var(--color-text-danger)}
+.fb{border-radius:var(--border-radius-md);padding:9px 13px;font-size:12px;margin-top:8px;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--color-background-success);color:var(--color-text-success)}
+.fb.bad{background:var(--color-background-danger);color:var(--color-text-danger)}
+.nav-row{display:flex;gap:8px;margin-top:12px}
+.nav-row .btn{margin-top:0}
+/* lecturer dashboard */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:gap}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px}
+.stat-num{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-lbl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.filter-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.filter-row select,.filter-row input{flex:1;min-width:120px;margin:0}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--color-background-secondary)}
+th{padding:9px 12px;text-align:left;font-weight:500;color:var(--color-text-secondary);font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:9px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--color-background-secondary)}
+.badge{font-size:11px;padding:3px 8px;border-radius:99px;font-weight:500}
+.b-pass{background:var(--color-background-success);color:var(--color-text-success)}
+.b-fail{background:var(--color-background-danger);color:var(--color-text-danger)}
+.b-excel{background:#E1F5EE;color:#085041}
+.b-word{background:#E6F1FB;color:#0C447C}
+.empty-state{text-align:center;padding:40px 20px;color:var(--color-text-secondary);font-size:14px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.user-chip{font-size:13px;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:6px 12px;border-radius:99px}
+.export-btn{padding:8px 14px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);transition:background 0.15s}
+.export-btn:hover{background:var(--color-background-secondary)}
+.result-big{text-align:center;padding:20px 0}
+.result-score{font-size:52px;font-weight:500}
+.result-lbl{font-size:14px;color:var(--color-text-secondary);margin-bottom:16px}
+.result-msg{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.result-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:20px}
+.dots{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot-ok{background:#1D9E75}
+.dot-bad{background:#E24B4A}
+</style>
+
+<div id="s-home" class="screen active">
+  <div class="page-title">Classroom Quiz System</div>
+  <div class="page-sub">Choose your role to continue</div>
+  <div class="role-btns">
+    <div class="role-btn" onclick="show('s-student-login')">
+      <div class="role-icon">🎓</div>
+      <div class="role-name">I'm a Student</div>
+      <div class="role-desc">Log in and take the quiz</div>
+    </div>
+    <div class="role-btn" onclick="show('s-lec-login')">
+      <div class="role-icon">👨‍🏫</div>
+      <div class="role-name">I'm a Lecturer</div>
+      <div class="role-desc">View results & marks</div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT LOGIN -->
+<div id="s-student-login" class="screen">
+  <div class="page-title">Student Login</div>
+  <div class="page-sub">Enter your details to start the quiz</div>
+  <div class="card">
+    <label>Full Name</label>
+    <input id="st-name" type="text" placeholder="e.g. Amal Perera" />
+    <label>Student ID</label>
+    <input id="st-id" type="text" placeholder="e.g. ST2024001" />
+    <label>Quiz Subject</label>
+    <select id="st-subj">
+      <option value="excel">Excel</option>
+      <option value="word">MS Word</option>
+    </select>
+    <div class="err" id="st-err">Please fill in all fields.</div>
+    <button class="btn btn-green" onclick="studentLogin()">Start Quiz →</button>
+    <button class="btn btn-gray" onclick="show('s-home')">← Back</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="s-quiz" class="screen">
+  <div class="top-bar">
+    <div class="user-chip" id="quiz-user-chip">Student</div>
+    <div style="font-size:12px;color:var(--color-text-secondary)" id="quiz-timer">00:00</div>
+  </div>
+  <div id="quiz-body"></div>
+</div>
+
+<!-- QUIZ RESULT -->
+<div id="s-result" class="screen">
+  <div class="card">
+    <div class="result-big">
+      <div class="result-score" id="res-score"></div>
+      <div class="result-lbl" id="res-lbl"></div>
+      <div class="dots" id="res-dots"></div>
+      <div class="result-msg" id="res-msg"></div>
+      <div class="result-sub" id="res-sub"></div>
+    </div>
+    <button class="btn btn-gray" onclick="show('s-home')" style="margin-top:0">Back to Home</button>
+  </div>
+</div>
+
+<!-- LECTURER LOGIN -->
+<div id="s-lec-login" class="screen">
+  <div class="page-title">Lecturer Login</div>
+  <div class="page-sub">Enter your credentials to access the dashboard</div>
+  <div class="card">
+    <label>Username</label>
+    <input id="lec-user" type="text" placeholder="lecturer" />
+    <label>Password</label>
+    <input id="lec-pass" type="password" placeholder="••••••" />
+    <div class="err" id="lec-err">Incorrect username or password.</div>
+    <button class="btn btn-blue" onclick="lecLogin()">Login →</button>
+    <button class="btn btn-gray" onclick="show('s-home')">← Back</button>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:10px;text-align:center">Demo: username <b>lecturer</b> / password <b>1234</b></div>
+  </div>
+</div>
+
+<!-- LECTURER DASHBOARD -->
+<div id="s-dashboard" class="screen">
+  <div class="top-bar">
+    <div>
+      <div class="page-title" style="margin-bottom:0">Lecturer Dashboard</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)" id="dash-date"></div>
+    </div>
+    <button class="btn btn-gray" style="width:auto;margin-top:0;padding:7px 14px;font-size:12px" onclick="lecLogout()">Logout</button>
+  </div>
+
+  <div class="stat-grid" id="dash-stats"></div>
+
+  <div class="card" style="padding:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Student Results</div>
+      <div style="display:flex;gap:8px">
+        <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+        <button class="export-btn btn-red" style="color:#fff;background:#E24B4A;border-color:#E24B4A" onclick="clearData()">Clear All</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <select id="f-subj" onchange="renderTable()">
+        <option value="all">All Subjects</option>
+        <option value="excel">Excel</option>
+        <option value="word">MS Word</option>
+      </select>
+      <select id="f-status" onchange="renderTable()">
+        <option value="all">All Results</option>
+        <option value="pass">Pass only</option>
+        <option value="fail">Fail only</option>
+      </select>
+      <input id="f-search" placeholder="Search name / ID..." oninput="renderTable()" style="flex:2" />
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Student ID</th>
+            <th>Subject</th>
+            <th>Score</th>
+            <th>%</th>
+            <th>Status</th>
+            <th>Time Taken</th>
+            <th>Submitted At</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="empty-state" style="display:none">No students have submitted yet.</div>
+  </div>
+</div>
+
+<script>
+const LECTURER_USER = 'lecturer';
+const LECTURER_PASS = '1234';
+const STORAGE_KEY = 'quiz_results';
+
+const quizData = {
+  excel:{
+    color:'#1D9E75',light:'#E1F5EE',tagColor:'#085041',bar:'#1D9E75',label:'Excel',
+    questions:[
+      {tag:'Basics',q:'What symbol must every Excel formula start with?',opts:['@','#','=','+'],ans:2,exp:'All Excel formulas must begin with = (equals sign).'},
+      {tag:'Basics',q:'Which is a valid Excel cell address?',opts:['1A','AA','A1','A-1'],ans:2,exp:'Cell addresses combine column letter + row number: A1.'},
+      {tag:'Formula',q:'What does =SUM(A1:A5) calculate?',opts:['Average of A1:A5','Total of A1:A5','Largest value','Count of cells'],ans:1,exp:'SUM adds up all values in the range A1:A5.'},
+      {tag:'Formula',q:'Which formula finds the highest number in B1:B10?',opts:['=HIGH(B1:B10)','=LARGEST(B1:B10)','=TOP(B1:B10)','=MAX(B1:B10)'],ans:3,exp:'=MAX() returns the largest value in a range.'},
+      {tag:'Formula',q:'What does =AVERAGE(10,20,30,40) return?',opts:['100','40','25','20'],ans:2,exp:'AVERAGE adds values then divides by count: 100÷4 = 25.'},
+      {tag:'IF Function',q:'What does =IF(B2>=50,"Pass","Fail") show if B2=45?',opts:['Pass','Fail','Error','45'],ans:1,exp:'45 < 50 so condition is FALSE → returns "Fail".'},
+      {tag:'IF Function',q:'How many arguments does an IF function take?',opts:['1','2','3','4'],ans:2,exp:'IF takes 3: =IF(condition, value_if_true, value_if_false).'},
+      {tag:'VLOOKUP',q:'What is the first argument in VLOOKUP?',opts:['The table range','The column number','The lookup value','TRUE or FALSE'],ans:2,exp:'First argument is the lookup value — what you are searching for.'},
+      {tag:'Formatting',q:'Which shortcut applies Bold in Excel?',opts:['Ctrl+I','Ctrl+U','Ctrl+B','Ctrl+D'],ans:2,exp:'Ctrl+B = Bold. Ctrl+I = Italic. Ctrl+U = Underline.'},
+      {tag:'Charts',q:'Where do you insert a chart in Excel?',opts:['Home tab','Data tab','Insert tab','View tab'],ans:2,exp:'Insert tab → Charts group → choose chart type.'},
+      {tag:'Sorting',q:'What does sorting A→Z do to names?',opts:['Largest to smallest','Alphabetically A to Z','Removes duplicates','Filters blanks'],ans:1,exp:'A→Z sorts text alphabetically and numbers smallest to largest.'},
+      {tag:'Formula',q:'Which formula counts cells with numbers in A1:A10?',opts:['=SUM(A1:A10)','=COUNT(A1:A10)','=COUNTA(A1:A10)','=NUMBER(A1:A10)'],ans:1,exp:'=COUNT() counts numeric cells. =COUNTA() counts all non-empty cells.'},
+      {tag:'Basics',q:'AutoFill is used to:',opts:['Auto-save the file','Extend a series or formula','Auto-format cells','Auto-sort data'],ans:1,exp:'AutoFill extends a series or copies a formula across cells.'},
+      {tag:'Formula',q:'What does =MIN(5,10,3,8) return?',opts:['5','10','3','8'],ans:2,exp:'MIN returns the smallest value: 3.'},
+      {tag:'Basics',q:'In Excel, rows are identified by:',opts:['Letters (A,B,C)','Numbers (1,2,3)','Colors','Letters and numbers'],ans:1,exp:'Rows are numbered (1,2,3). Columns use letters (A,B,C).'}
+    ]
+  },
+  word:{
+    color:'#185FA5',light:'#E6F1FB',tagColor:'#0C447C',bar:'#185FA5',label:'MS Word',
+    questions:[
+      {tag:'Basics',q:'Which shortcut UNDOES an action in Word?',opts:['Ctrl+Y','Ctrl+Z','Ctrl+U','Ctrl+X'],ans:1,exp:'Ctrl+Z undoes. Ctrl+Y redoes.'},
+      {tag:'Basics',q:'The area at the top with Home, Insert, Layout tabs is called:',opts:['Toolbar','Status Bar','Ribbon','Navigation Pane'],ans:2,exp:'The Ribbon contains all tabs and commands.'},
+      {tag:'Formatting',q:'Which shortcut makes text Bold?',opts:['Ctrl+I','Ctrl+B','Ctrl+U','Ctrl+E'],ans:1,exp:'Ctrl+B = Bold. Ctrl+I = Italic. Ctrl+U = Underline.'},
+      {tag:'Formatting',q:'Justify alignment makes text:',opts:['Centered','Right-aligned only','Neat on both left and right edges','Left-aligned only'],ans:2,exp:'Justify aligns text evenly on both margins — like in newspapers.'},
+      {tag:'Styles',q:'Which Style is used for the main document title?',opts:['Normal','Heading 2','Heading 1','Body Text'],ans:2,exp:'Heading 1 is the top-level heading. It also builds the Table of Contents.'},
+      {tag:'Tables',q:'How do you add a new row at the bottom of a table?',opts:['Right-click → Insert Row','Press Enter in last cell','Press Tab in last cell','Insert → Row'],ans:2,exp:'Tab in the last cell automatically creates a new row.'},
+      {tag:'Tables',q:'How do you merge cells in a Word table?',opts:['Double-click between them','Select cells → Merge Cells','Use Ctrl+M','Insert → Merge'],ans:1,exp:'Select cells → right-click → Merge Cells.'},
+      {tag:'Page Layout',q:'Where do you change page orientation to Landscape?',opts:['Home tab','Insert tab','Layout tab','View tab'],ans:2,exp:'Layout → Orientation → Landscape.'},
+      {tag:'Page Layout',q:'Which shortcut inserts a Page Break?',opts:['Ctrl+P','Ctrl+B','Ctrl+Enter','Ctrl+Shift+P'],ans:2,exp:'Ctrl+Enter inserts a page break.'},
+      {tag:'Images',q:'Text Wrapping in Word controls:',opts:['Font changes','How text flows around an image','Image resizing','Text borders'],ans:1,exp:'Text Wrapping sets how text behaves around an inserted image.'},
+      {tag:'Headers',q:'Which tab is used to insert a Header or Footer?',opts:['Home','Layout','View','Insert'],ans:3,exp:'Insert → Header or Insert → Footer.'},
+      {tag:'Basics',q:'Which shortcut runs Spelling & Grammar check?',opts:['F5','F7','F9','F11'],ans:1,exp:'F7 opens Spelling & Grammar checker.'},
+      {tag:'Formatting',q:'Double-clicking a word in Word:',opts:['Opens Format menu','Deletes the word','Selects the entire word','Copies the word'],ans:2,exp:'Double-click selects the whole word. Triple-click selects the paragraph.'},
+      {tag:'Saving',q:'Which shortcut saves the current document?',opts:['Ctrl+P','Ctrl+S','Ctrl+D','Ctrl+W'],ans:1,exp:'Ctrl+S saves. Ctrl+Shift+S opens Save As.'},
+      {tag:'Basics',q:'Ctrl+A in Word does what?',opts:['Copy all','Cut all','Select ALL content','Undo all'],ans:2,exp:'Ctrl+A selects everything in the document.'}
+    ]
+  }
+};
+
+let currentStudent = null;
+let qIndex = 0;
+let shuffled = [];
+let results = [];
+let answered = false;
+let timerInterval = null;
+let timerSeconds = 0;
+let quizSubject = 'excel';
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
+
+function studentLogin(){
+  const name = document.getElementById('st-name').value.trim();
+  const id = document.getElementById('st-id').value.trim();
+  const subj = document.getElementById('st-subj').value;
+  const err = document.getElementById('st-err');
+  if(!name||!id){err.classList.add('show');return;}
+  err.classList.remove('show');
+  currentStudent = {name, id, subj, startTime: Date.now()};
+  quizSubject = subj;
+  shuffled = shuffle(quizData[subj].questions).slice(0,10);
+  qIndex = 0; results = []; answered = false; timerSeconds = 0;
+  document.getElementById('quiz-user-chip').textContent = name + ' — ' + quizData[subj].label;
+  show('s-quiz');
+  startTimer();
+  renderQ();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerSeconds = 0;
+  timerInterval = setInterval(()=>{
+    timerSeconds++;
+    const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
+    const s = String(timerSeconds%60).padStart(2,'0');
+    const el = document.getElementById('quiz-timer');
+    if(el) el.textContent = m+':'+s;
+  },1000);
+}
+
+function renderQ(){
+  const d = quizData[quizSubject];
+  const q = shuffled[qIndex];
+  const pct = Math.round(qIndex/shuffled.length*100);
+  const correct = results.filter(r=>r).length;
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="prog-outer"><div class="prog-inner" style="width:${pct}%;background:${d.bar}"></div></div>
+    <div class="q-meta"><span>Q${qIndex+1} of ${shuffled.length}</span><span>Score: ${correct}/${qIndex}</span></div>
+    <div class="card">
+      <div class="q-tag" style="background:${d.light};color:${d.tagColor}">${q.tag}</div>
+      <div class="q-text">${q.q}</div>
+      ${q.code?`<div class="q-code">${q.code}</div>`:''}
+      <div id="opts">
+        ${q.opts.map((o,i)=>`<div class="opt" id="op${i}" onclick="pick(${i})">
+          <div class="opt-l">${String.fromCharCode(65+i)}</div>
+          <div class="opt-t">${o}</div>
+        </div>`).join('')}
+      </div>
+      <div class="fb" id="fb"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-gray" onclick="prevQ()" ${qIndex===0?'disabled':''} style="flex:1">← Back</button>
+      <button class="btn" id="nxt" onclick="nextQ()" disabled style="flex:2;background:${d.bar};color:#fff">${qIndex===shuffled.length-1?'Submit Quiz':'Next →'}</button>
+    </div>`;
+  answered = false;
+}
+
+function pick(i){
+  if(answered) return;
+  answered = true;
+  const q = shuffled[qIndex];
+  const ok = i===q.ans;
+  results[qIndex] = ok;
+  document.querySelectorAll('.opt').forEach((el,idx)=>{
+    el.classList.add('disabled');
+    if(idx===q.ans) el.classList.add('correct');
+    else if(idx===i&&!ok) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('fb');
+  fb.className = 'fb show '+(ok?'ok':'bad');
+  fb.textContent = (ok?'Correct! ':'Not quite. ')+q.exp;
+  document.getElementById('nxt').disabled = false;
+}
+
+function nextQ(){
+  if(!answered) return;
+  if(qIndex===shuffled.length-1){submitQuiz();return;}
+  qIndex++;
+  renderQ();
+}
+
+function prevQ(){
+  if(qIndex===0) return;
+  qIndex--;
+  renderPrev();
+}
+
+function renderPrev(){
+  const d = quizData[quizSubject];
+  const q = shuffled[qIndex];
+  const pct = Math.round(qIndex/shuffled.length*100);
+  const correct = results.filter(r=>r).length;
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="prog-outer"><div class="prog-inner" style="width:${pct}%;background:${d.bar}"></div></div>
+    <div class="q-meta"><span>Q${qIndex+1} of ${shuffled.length}</span><span>Score: ${correct}/${qIndex}</span></div>
+    <div class="card">
+      <div class="q-tag" style="background:${d.light};color:${d.tagColor}">${q.tag}</div>
+      <div class="q-text">${q.q}</div>
+      ${q.code?`<div class="q-code">${q.code}</div>`:''}
+      <div>
+        ${q.opts.map((o,idx)=>{
+          let c='opt disabled';
+          if(idx===q.ans)c+=' correct';
+          return `<div class="${c}"><div class="opt-l">${String.fromCharCode(65+idx)}</div><div class="opt-t">${o}</div></div>`;
+        }).join('')}
+      </div>
+      <div class="fb show ${results[qIndex]?'ok':'bad'}">${(results[qIndex]?'Correct! ':'Not quite. ')+q.exp}</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-gray" onclick="prevQ()" ${qIndex===0?'disabled':''} style="flex:1">← Back</button>
+      <button class="btn" onclick="nextQ()" style="flex:2;background:${d.bar};color:#fff">Next →</button>
+    </div>`;
+}
+
+async function submitQuiz(){
+  clearInterval(timerInterval);
+  const total = shuffled.length;
+  const correct = results.filter(r=>r).length;
+  const pct = Math.round(correct/total*100);
+  const pass = pct >= 50;
+  const d = quizData[quizSubject];
+  let msg,sub;
+  if(pct===100){msg='Perfect score!';sub='Outstanding performance!';}
+  else if(pct>=80){msg='Excellent work!';sub='Great job — almost perfect!';}
+  else if(pct>=60){msg='Good effort!';sub='You passed — keep improving!';}
+  else if(pct>=50){msg='Just passed!';sub='Review the topics you missed.';}
+  else{msg='Keep practising!';sub='Review the course lessons and try again.';}
+
+  document.getElementById('res-score').textContent = correct+'/'+total;
+  document.getElementById('res-score').style.color = d.color;
+  document.getElementById('res-lbl').textContent = pct+'% — '+d.label+' Quiz';
+  document.getElementById('res-dots').innerHTML = results.map(r=>`<div class="dot ${r?'dot-ok':'dot-bad'}"></div>`).join('');
+  document.getElementById('res-msg').textContent = msg;
+  document.getElementById('res-sub').textContent = sub;
+
+  const mins = Math.floor(timerSeconds/60);
+  const secs = timerSeconds%60;
+  const timeTaken = mins+'m '+secs+'s';
+  const now = new Date();
+  const submittedAt = now.toLocaleString();
+
+  const record = {
+    name: currentStudent.name,
+    studentId: currentStudent.id,
+    subject: quizSubject,
+    subjectLabel: d.label,
+    score: correct,
+    total: total,
+    pct: pct,
+    pass: pass,
+    timeTaken: timeTaken,
+    submittedAt: submittedAt,
+    ts: now.getTime()
+  };
+
+  try {
+    let existing = [];
+    try {
+      const r = await window.storage.get(STORAGE_KEY, true);
+      if(r) existing = JSON.parse(r.value);
+    } catch(e){}
+    existing.push(record);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(existing), true);
+  } catch(e){}
+
+  show('s-result');
+}
+
+function lecLogin(){
+  const u = document.getElementById('lec-user').value.trim();
+  const p = document.getElementById('lec-pass').value;
+  const err = document.getElementById('lec-err');
+  if(u===LECTURER_USER && p===LECTURER_PASS){
+    err.classList.remove('show');
+    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    show('s-dashboard');
+    loadDashboard();
+  } else {
+    err.classList.add('show');
+  }
+}
+
+function lecLogout(){
+  document.getElementById('lec-user').value='';
+  document.getElementById('lec-pass').value='';
+  show('s-home');
+}
+
+let allResults = [];
+
+async function loadDashboard(){
+  try {
+    const r = await window.storage.get(STORAGE_KEY, true);
+    allResults = r ? JSON.parse(r.value) : [];
+  } catch(e){ allResults=[]; }
+  renderStats();
+  renderTable();
+}
+
+function renderStats(){
+  const total = allResults.length;
+  const passed = allResults.filter(r=>r.pass).length;
+  const avg = total ? Math.round(allResults.reduce((s,r)=>s+r.pct,0)/total) : 0;
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">Students logged in</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#1D9E75">${passed}</div><div class="stat-lbl">Passed</div></div>
+    <div class="stat-box"><div class="stat-num">${avg}%</div><div class="stat-lbl">Class average</div></div>`;
+}
+
+function renderTable(){
+  const subj = document.getElementById('f-subj').value;
+  const status = document.getElementById('f-status').value;
+  const search = document.getElementById('f-search').value.toLowerCase();
+  let data = [...allResults].sort((a,b)=>b.ts-a.ts);
+  if(subj!=='all') data=data.filter(r=>r.subject===subj);
+  if(status==='pass') data=data.filter(r=>r.pass);
+  if(status==='fail') data=data.filter(r=>!r.pass);
+  if(search) data=data.filter(r=>r.name.toLowerCase().includes(search)||r.studentId.toLowerCase().includes(search));
+  const tbody = document.getElementById('results-tbody');
+  const empty = document.getElementById('empty-state');
+  if(!data.length){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  tbody.innerHTML = data.map((r,i)=>`
+    <tr>
+      <td style="color:var(--color-text-secondary)">${i+1}</td>
+      <td style="font-weight:500">${r.name}</td>
+      <td style="font-family:var(--font-mono);font-size:12px">${r.studentId}</td>
+      <td><span class="badge ${r.subject==='excel'?'b-excel':'b-word'}">${r.subjectLabel}</span></td>
+      <td>${r.score}/${r.total}</td>
+      <td style="font-weight:500">${r.pct}%</td>
+      <td><span class="badge ${r.pass?'b-pass':'b-fail'}">${r.pass?'Pass':'Fail'}</span></td>
+      <td>${r.timeTaken}</td>
+      <td style="font-size:12px;color:var(--color-text-secondary)">${r.submittedAt}</td>
+    </tr>`).join('');
+}
+
+function exportCSV(){
+  if(!allResults.length){alert('No data to export.');return;}
+  const header = ['Name','Student ID','Subject','Score','Total','Percentage','Status','Time Taken','Submitted At'];
+  const rows = allResults.map(r=>[
+    `"${r.name}"`,`"${r.studentId}"`,`"${r.subjectLabel}"`,
+    r.score,r.total,r.pct+'%',r.pass?'Pass':'Fail',
+    `"${r.timeTaken}"`,`"${r.submittedAt}"`
+  ]);
+  const csv = [header,...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='student_quiz_results.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function clearData(){
+  if(!confirm('Clear ALL student results? This cannot be undone.')) return;
+  try{ await window.storage.delete(STORAGE_KEY, true); }catch(e){}
+  allResults=[];
+  renderStats();
+  renderTable();
+}
+</script>
